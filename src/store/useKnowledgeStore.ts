@@ -38,6 +38,8 @@ const hydrate = () => {
 
 export const useKnowledgeStore = create<State>((set) => ({
   ...hydrate(),
+  nodes: hydrate().nodes.map((n) => ({ ...n, type: 'island' })),
+  edges: hydrate().edges.map((e) => ({ ...e, type: 'world' })),
   tick: () =>
     set((state) => ({
       nodes: state.nodes.map((node) => ({
@@ -107,6 +109,7 @@ export const useKnowledgeStore = create<State>((set) => ({
         {
           ...connection,
           id: `${connection.source}-${connection.target}-${Date.now()}`,
+          type: 'world',
           data: { fortaleza: 0.5, tipo: 'Complementaria', notas: 'Nueva conexión.' }
         },
         state.edges
