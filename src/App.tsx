@@ -9,6 +9,8 @@ import { useKnowledgeStore } from './store/useKnowledgeStore';
 const nodeTypes = { island: IslandNode };
 const edgeTypes = { world: WorldEdge };
 
+import { useKnowledgeStore } from './store/useKnowledgeStore';
+
 function App() {
   const { nodes, edges, setNodes, setEdges, onConnect, selectNode, selectEdge } = useKnowledgeStore();
 
@@ -26,6 +28,17 @@ function App() {
           edges={edges}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
+    <div className="grid h-screen grid-cols-[320px_1fr] bg-slate-950 text-slate-100">
+      <aside className="flex flex-col gap-4 border-r border-slate-800 p-4">
+        <h1 className="text-xl font-bold">Knowledge Islands</h1>
+        <p className="text-xs text-slate-400">Mapa de conocimiento personal con decaimiento y refuerzo.</p>
+        <Dashboard />
+        <DetailPanel />
+      </aside>
+      <main>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
           onNodesChange={(changes) => setNodes(applyNodeChanges(changes, nodes))}
           onEdgesChange={(changes) => setEdges(applyEdgeChanges(changes, edges))}
           onConnect={onConnect}
@@ -41,6 +54,10 @@ function App() {
           <MiniMap className="!rounded-3xl !bg-white/80" pannable zoomable />
           <Controls className="!rounded-3xl !border-none !bg-white/75" />
           <Background color="rgba(255,255,255,0.16)" gap={38} size={2} />
+        >
+          <MiniMap className="!bg-slate-900" pannable zoomable />
+          <Controls />
+          <Background color="#334155" gap={16} />
         </ReactFlow>
       </main>
     </div>

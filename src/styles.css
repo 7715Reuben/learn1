@@ -63,3 +63,7 @@ body { margin: 0; }
 @keyframes pulse { 0%,100%{ box-shadow: inset -8px -14px 20px rgba(0,0,0,0.16), inset 8px 8px 14px rgba(255,255,255,0.4), 0 18px 24px rgba(33,16,88,.3);} 50%{ box-shadow: inset -8px -14px 20px rgba(0,0,0,0.12), inset 8px 8px 14px rgba(255,255,255,0.5), 0 24px 30px rgba(33,16,88,.4);} }
 @keyframes flow { to { stroke-dashoffset: -22; } }
 @keyframes flicker { 0%,100% {opacity:.45;} 50% {opacity:.2;} }
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+}
