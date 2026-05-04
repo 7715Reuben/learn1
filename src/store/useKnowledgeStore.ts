@@ -1,38 +1,134 @@
 import { create } from 'zustand';
 import { Connection, Edge, Node, addEdge } from 'reactflow';
-import { ConnectionData, NodeData, seedEdges, seedNodes } from '../data/seed';
+import { ConexionData, NodoData, seedEdges, seedNodes } from '../data/seed';
 
-const STORAGE_KEY = 'knowledge-islands-v2';
+const STORAGE_KEY = 'knowledge-islands-v1';
+
 interface State {
-  nodes: Node<NodeData>[]; edges: Edge<ConnectionData>[]; selectedNodeId?: string; selectedEdgeId?: string;
-  tick:()=>void; reinforceNode:(id:string)=>void; upgradeNode:(id:string)=>void;
-  updateNodeDescription:(id:string,d:string)=>void; updateEdgeNotes:(id:string,n:string)=>void;
-  setNodes:(nodes:Node<NodeData>[])=>void; setEdges:(edges:Edge<ConnectionData>[])=>void;
-  onConnect:(c:Connection)=>void; selectNode:(id?:string)=>void; selectEdge:(id?:string)=>void;
+  nodes: Node<NodoData>[];
+  edges: Edge<ConexionData>[];
+  selectedNodeId?: string;
+  selectedEdgeId?: string;
+  tick: () => void;
+  reinforceNode: (nodeId: string) => void;
+  upgradeNode: (nodeId: string) => void;
+  updateNodeDescription: (nodeId: string, descripcion: string) => void;
+  updateEdgeNotes: (edgeId: string, notas: string) => void;
+  setNodes: (nodes: Node<NodoData>[]) => void;
+  setEdges: (edges: Edge<ConexionData>[]) => void;
+  onConnect: (connection: Connection) => void;
+  selectNode: (nodeId?: string) => void;
+  selectEdge: (edgeId?: string) => void;
 }
-const levels: NodeData['level'][] = ['Starter','Growing','Confident'];
-const hydrate = (): { nodes: Node<NodeData>[]; edges: Edge<ConnectionData>[] } => { try { const s = localStorage.getItem(STORAGE_KEY); if (!s) return {nodes:seedNodes,edges:seedEdges}; return JSON.parse(s) as { nodes: Node<NodeData>[]; edges: Edge<ConnectionData>[] };} catch { return {nodes:seedNodes,edges:seedEdges}; }};
-const initial = hydrate();
+
+const niveles: NodoData['nivel'][] = ['Básico', 'Intermedio', 'Avanzado', 'Experto'];
+
+const hydrate = () => {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) {
+    return { nodes: seedNodes, edges: seedEdges };
+  }
+
+  try {
+    return JSON.parse(saved) as Pick<State, 'nodes' | 'edges'>;
+  } catch {
+    return { nodes: seedNodes, edges: seedEdges };
+  }
+};
 
 export const useKnowledgeStore = create<State>((set) => ({
-  nodes: initial.nodes.map((n)=>({ ...n, type:'island'})),
-  edges: initial.edges.map((e)=>({ ...e, type:'world'})),
-  tick: ()=> set((s)=>({
-    nodes: s.nodes.map((n)=>({ ...n, data:{ ...n.data, reinforcement: Math.max(0, n.data.reinforcement-0.05)}})),
-    edges: s.edges.map((e)=>({ ...e, data:{ ...e.data!, strength: Math.max(0.1, e.data!.strength-0.04)}}))
-  })),
-  reinforceNode: (id)=> set((s)=>({
-    nodes: s.nodes.map((n)=> n.id===id ? ({...n,data:{...n.data,reinforcement:Math.min(1,n.data.reinforcement+0.18),lastReview:new Date().toISOString()}}):n),
-    edges: s.edges.map((e)=> e.source===id||e.target===id?({...e,data:{...e.data!,strength:Math.min(1,e.data!.strength+0.1)}}):e)
-  })),
-  upgradeNode: (id)=> set((s)=>({nodes:s.nodes.map((n)=>{ if(n.id!==id)return n; const i=levels.indexOf(n.data.level); return {...n,data:{...n.data,level:levels[Math.min(levels.length-1,i+1)],reinforcement:Math.max(n.data.reinforcement,0.75)}}; })})),
-  updateNodeDescription: (id,d)=>set((s)=>({nodes:s.nodes.map((n)=>n.id===id?({...n,data:{...n.data,description:d}}):n)})),
-  updateEdgeNotes: (id,n)=>set((s)=>({edges:s.edges.map((e)=>e.id===id?({...e,data:{...e.data!,notes:n}}):e)})),
-  setNodes: (nodes)=>set({nodes}), setEdges:(edges)=>set({edges}),
-  onConnect: (c)=>set((s)=>({edges:addEdge({...c,id:`${c.source}-${c.target}-${Date.now()}`,type:'world',data:{strength:0.5,type:'Path',notes:'New route'}},s.edges)})),
-  selectNode:(id)=>set({selectedNodeId:id,selectedEdgeId:undefined}), selectEdge:(id)=>set({selectedEdgeId:id,selectedNodeId:undefined})
+  ...hydrate(),
+  nodes: hydrate().nodes.map((n) => ({ ...n, type: 'island' })),
+  edges: hydrate().edges.map((e) => ({ ...e, type: 'world' })),
+  tick: () =>
+    set((state) => ({
+      nodes: state.nodes.map((node) => ({
+        ...node,
+        data: {
+          ...node.data,
+          refuerzo: Math.max(0, node.data.refuerzo - 0.04)
+        }
+      })),
+      edges: state.edges.map((edge) => ({
+        ...edge,
+        data: {
+          ...edge.data!,
+          fortaleza: Math.max(0.1, edge.data!.fortaleza - 0.03)
+        }
+      }))
+    })),
+  reinforceNode: (nodeId) =>
+    set((state) => ({
+      nodes: state.nodes.map((node) =>
+        node.id === nodeId
+          ? {
+              ...node,
+              data: {
+                ...node.data,
+                refuerzo: Math.min(1, node.data.refuerzo + 0.2),
+                ultimaRevision: new Date().toISOString()
+              }
+            }
+          : node
+      ),
+      edges: state.edges.map((edge) =>
+        edge.source === nodeId || edge.target === nodeId
+          ? { ...edge, data: { ...edge.data!, fortaleza: Math.min(1, edge.data!.fortaleza + 0.08) } }
+          : edge
+      )
+    })),
+  upgradeNode: (nodeId) =>
+    set((state) => ({
+      nodes: state.nodes.map((node) => {
+        if (node.id !== nodeId) return node;
+        const current = niveles.indexOf(node.data.nivel);
+        const next = Math.min(niveles.length - 1, current + 1);
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            nivel: niveles[next],
+            refuerzo: Math.max(node.data.refuerzo, 0.75)
+          }
+        };
+      })
+    })),
+  updateNodeDescription: (nodeId, descripcion) =>
+    set((state) => ({
+      nodes: state.nodes.map((n) => (n.id === nodeId ? { ...n, data: { ...n.data, descripcion } } : n))
+    })),
+  updateEdgeNotes: (edgeId, notas) =>
+    set((state) => ({
+      edges: state.edges.map((e) => (e.id === edgeId ? { ...e, data: { ...e.data!, notas } } : e))
+    })),
+  setNodes: (nodes) => set({ nodes }),
+  setEdges: (edges) => set({ edges }),
+  onConnect: (connection) =>
+    set((state) => ({
+      edges: addEdge(
+        {
+          ...connection,
+          id: `${connection.source}-${connection.target}-${Date.now()}`,
+          type: 'world',
+          data: { fortaleza: 0.5, tipo: 'Complementaria', notas: 'Nueva conexión.' }
+        },
+        state.edges
+      )
+    })),
+  selectNode: (selectedNodeId) => set({ selectedNodeId, selectedEdgeId: undefined }),
+  selectEdge: (selectedEdgeId) => set({ selectedEdgeId, selectedNodeId: undefined })
 }));
 
-useKnowledgeStore.subscribe((s)=>localStorage.setItem(STORAGE_KEY,JSON.stringify({nodes:s.nodes,edges:s.edges})));
-export const useSelectedNode = ()=> { const {nodes,selectedNodeId}=useKnowledgeStore(); return nodes.find((n)=>n.id===selectedNodeId); };
-export const useSelectedEdge = ()=> { const {edges,selectedEdgeId}=useKnowledgeStore(); return edges.find((e)=>e.id===selectedEdgeId); };
+useKnowledgeStore.subscribe((state) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({ nodes: state.nodes, edges: state.edges }));
+});
+
+export const useSelectedNode = () => {
+  const { nodes, selectedNodeId } = useKnowledgeStore();
+  return nodes.find((n) => n.id === selectedNodeId);
+};
+
+export const useSelectedEdge = () => {
+  const { edges, selectedEdgeId } = useKnowledgeStore();
+  return edges.find((e) => e.id === selectedEdgeId);
+};

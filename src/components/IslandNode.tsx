@@ -1,26 +1,26 @@
 import { Handle, NodeProps, Position } from 'reactflow';
-import { NodeData } from '../data/seed';
+import { NodoData } from '../data/seed';
 
-const artByTheme = {
-  Greetings: { emoji: '🏝️', color: 'from-emerald-300 via-green-300 to-lime-300' },
-  Introductions: { emoji: '🛶', color: 'from-orange-300 via-amber-300 to-yellow-300' },
-  Goodbyes: { emoji: '🌙', color: 'from-violet-300 via-indigo-300 to-sky-300' }
+const domainPalette: Record<string, string> = {
+  Frontend: 'from-fuchsia-400 via-pink-400 to-rose-500',
+  Arquitectura: 'from-sky-400 via-cyan-300 to-emerald-400',
+  Backend: 'from-violet-500 via-indigo-400 to-sky-400'
 };
 
-export default function IslandNode({ data, selected }: NodeProps<NodeData>) {
-  const theme = artByTheme[data.theme];
-  const size = 120 + Math.round(data.reinforcement * 36);
+export default function IslandNode({ data, selected }: NodeProps<NodoData>) {
+  const size = 110 + Math.round(data.refuerzo * 50);
+  const gradient = domainPalette[data.dominio] ?? 'from-amber-300 via-orange-300 to-rose-400';
 
   return (
-    <div className={`cq-node ${selected ? 'cq-node-selected' : ''}`} style={{ width: size, height: size }}>
-      <Handle type="target" position={Position.Left} className="cq-handle" />
-      <div className={`cq-surface bg-gradient-to-br ${theme.color}`}>
-        <span className="cq-emoji">{theme.emoji}</span>
-        <p className="cq-title">{data.label}</p>
-        <p className="cq-sub">{data.description}</p>
+    <div className={`island-node ${selected ? 'island-selected' : ''}`} style={{ width: size, height: size }}>
+      <Handle type="target" position={Position.Left} className="island-handle" />
+      <div className={`island-surface bg-gradient-to-br ${gradient}`}>
+        <div className="island-cloud" />
+        <p className="island-title">{data.label}</p>
+        <p className="island-level">{data.nivel}</p>
       </div>
-      <Handle type="source" position={Position.Right} className="cq-handle" />
-      <div className="cq-drop" />
+      <Handle type="source" position={Position.Right} className="island-handle" />
+      <div className="island-shadow" />
     </div>
   );
 }
