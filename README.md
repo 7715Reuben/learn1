@@ -115,23 +115,11 @@ npm run dev
 ```
 
 
-## Fix duplicate import / merge artifact errors
+## Fix broken App.tsx / merge artifact errors
 
-If Vite shows this error:
+If TypeScript or Vite shows duplicate import errors, missing closing JSX tags, or unexpected tokens in `src/App.tsx`, your local file has a bad merge artifact. This can happen when old and new versions of the app shell are accidentally combined.
 
-```text
-Identifier 'useKnowledgeStore' has already been declared
-```
-
-and points at `src/App.tsx` with an `import` around line 12, your local file has a bad merge artifact: the `useKnowledgeStore` import was inserted twice, once at the top and once below `const edgeTypes`.
-
-The clean file should have **all imports at the top** and exactly one line like this:
-
-```ts
-import { useKnowledgeStore } from './store/useKnowledgeStore';
-```
-
-This repo now runs the repair automatically before `npm run dev`, `npm run build`, and `npm run preview`. In most cases you can just run:
+The repair script restores `src/App.tsx` to the canonical Knowledge Isles app shell. It runs automatically before `npm run dev`, `npm run build`, and `npm run preview`. In most cases you can just run:
 
 ```bash
 npm run dev
@@ -181,7 +169,7 @@ npm start        # alias for npm run dev
 npm run ev       # typo-friendly alias for npm run dev
 npm run build    # auto-repair App.tsx imports, then type-check and build production assets
 npm run check    # alias for npm run build
-npm run fix:app  # repair duplicate App.tsx import merge artifacts
+npm run fix:app  # restore the canonical App.tsx shell after merge artifacts
 npm run preview  # preview the production build on port 4173
 ```
 
