@@ -15,6 +15,7 @@ The current curriculum is intentionally basic:
 - Tailwind CSS
 - Zustand
 - React Flow
+- Framer Motion
 - Node 20+
 
 ## Run in GitHub Codespaces
@@ -183,3 +184,4 @@ npm run preview  # preview the production build on port 4173
 - The app uses localStorage persistence, so your map can survive refreshes in the same browser.
 - Learning mechanics include decay, reinforcement, upgrades, and route creation.
 - The canvas still uses React Flow for interaction logic, but custom nodes and edges provide the playful island-world presentation.
+- The visual direction is a magical atlas with animated ocean layers, fog, miniature island habitats, and physical route metaphors.
