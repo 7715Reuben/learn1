@@ -1,55 +1,26 @@
-import { motion } from 'framer-motion';
-import { CSSProperties } from 'react';
 import { Handle, NodeProps, Position } from 'reactflow';
-import { NodeData } from '../data/seed';
+import { NodoData } from '../data/seed';
 
-const artByTheme = {
-  Greetings: {
-    className: 'habitat-greetings',
-    title: 'Tropical greeting isle'
-  },
-  Introductions: {
-    className: 'habitat-introductions',
-    title: 'Harbor of introductions'
-  },
-  Goodbyes: {
-    className: 'habitat-goodbyes',
-    title: 'Moonlit farewell cove'
-  }
+const domainPalette: Record<string, string> = {
+  Frontend: 'from-fuchsia-400 via-pink-400 to-rose-500',
+  Arquitectura: 'from-sky-400 via-cyan-300 to-emerald-400',
+  Backend: 'from-violet-500 via-indigo-400 to-sky-400'
 };
 
-export default function IslandNode({ data, selected }: NodeProps<NodeData>) {
-  const theme = artByTheme[data.theme];
-  const size = 132 + Math.round(data.reinforcement * 44);
-  const memoryState = data.reinforcement > 0.75 ? 'memory-strong' : data.reinforcement < 0.45 ? 'memory-fading' : 'memory-growing';
+export default function IslandNode({ data, selected }: NodeProps<NodoData>) {
+  const size = 110 + Math.round(data.refuerzo * 50);
+  const gradient = domainPalette[data.dominio] ?? 'from-amber-300 via-orange-300 to-rose-400';
 
   return (
-    <motion.div
-      className={`cq-node ${theme.className} ${memoryState} ${selected ? 'cq-node-selected' : ''}`}
-      style={{ width: size, height: size, '--memory': data.reinforcement } as CSSProperties}
-      animate={{ y: selected ? [-3, -9, -3] : [0, -5, 0], rotate: selected ? [-1.5, 1.5, -1.5] : [-0.5, 0.5, -0.5] }}
-      transition={{ duration: selected ? 2.4 : 4.8, repeat: Infinity, ease: 'easeInOut' }}
-      title={theme.title}
-    >
-      <Handle type="target" position={Position.Left} className="cq-handle cq-handle-west" />
-      <div className="island-aura" />
-      <div className="shoreline" />
-      <div className="cq-surface">
-        <span className="terrain-grain" />
-        <span className="terrain-hill hill-one" />
-        <span className="terrain-hill hill-two" />
-        <span className="terrain-path" />
-        <span className="tiny-prop prop-primary" />
-        <span className="tiny-prop prop-secondary" />
-        <span className="memory-crystal" />
-        <div className="nameplate">
-          <p className="cq-title">{data.label}</p>
-          <p className="cq-sub">{data.description}</p>
-        </div>
+    <div className={`island-node ${selected ? 'island-selected' : ''}`} style={{ width: size, height: size }}>
+      <Handle type="target" position={Position.Left} className="island-handle" />
+      <div className={`island-surface bg-gradient-to-br ${gradient}`}>
+        <div className="island-cloud" />
+        <p className="island-title">{data.label}</p>
+        <p className="island-level">{data.nivel}</p>
       </div>
-      <div className="memory-fog" />
-      <Handle type="source" position={Position.Right} className="cq-handle cq-handle-east" />
-      <div className="cq-drop" />
-    </motion.div>
+      <Handle type="source" position={Position.Right} className="island-handle" />
+      <div className="island-shadow" />
+    </div>
   );
 }

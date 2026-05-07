@@ -1,38 +1,26 @@
 import { EdgeLabelRenderer, EdgeProps, getBezierPath } from 'reactflow';
-import { ConnectionData } from '../data/seed';
+import { ConexionData } from '../data/seed';
 
-export default function WorldEdge({ sourceX, sourceY, targetX, targetY, data }: EdgeProps<ConnectionData>) {
-  const [path, labelX, labelY] = getBezierPath({ sourceX, sourceY, targetX, targetY, curvature: 0.48 });
-  const type = data?.type ?? 'Path';
-  const strength = data?.strength ?? 0.5;
-  const health = strength > 0.75 ? 'route-strong' : strength < 0.42 ? 'route-weak' : 'route-steady';
-  const routeClass = type === 'Bridge' ? 'route-bridge' : type === 'Tunnel' ? 'route-tunnel' : 'route-boat';
+export default function WorldEdge({ sourceX, sourceY, targetX, targetY, data }: EdgeProps<ConexionData>) {
+  const [path, labelX, labelY] = getBezierPath({ sourceX, sourceY, targetX, targetY, curvature: 0.35 });
+  const strength = data?.fortaleza ?? 0.5;
+  const weak = strength < 0.35;
+  const strong = strength > 0.75;
+  const variant = data?.tipo ?? 'Complementaria';
+
+  const classes =
+    variant === 'Prerequisito'
+      ? 'edge-burrow'
+      : variant === 'Aplicación'
+      ? 'edge-boat'
+      : 'edge-bridge';
 
   return (
     <>
-      <path d={path} fill="none" className={`route-shadow ${routeClass}`} />
-      <path d={path} fill="none" className={`route-base ${routeClass} ${health}`} />
-      {type === 'Bridge' && <path d={path} fill="none" className={`bridge-planks ${health}`} />}
-      {type === 'Path' && <path d={path} fill="none" className={`wake-trail ${health}`} />}
-      {type === 'Tunnel' && <path d={path} fill="none" className={`tunnel-glow ${health}`} />}
+      <path d={path} fill="none" className={`world-edge ${classes} ${weak ? 'edge-weak' : ''} ${strong ? 'edge-strong' : ''}`} />
       <EdgeLabelRenderer>
-        <div className="route-layer" style={{ transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)` }}>
-          {type === 'Path' && <span className={`tiny-boat ${health}`} />}
-          {type === 'Bridge' && (
-            <span className={`bridge-posts ${health}`}>
-              <i />
-              <i />
-              <i />
-            </span>
-          )}
-          {type === 'Tunnel' && (
-            <span className={`tunnel-dust ${health}`}>
-              <i />
-              <i />
-              <i />
-            </span>
-          )}
-          <div className={`route-sign ${routeClass} ${health}`}>{type}</div>
+        <div className="edge-label" style={{ transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)` }}>
+          {variant}
         </div>
       </EdgeLabelRenderer>
     </>

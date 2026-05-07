@@ -5,17 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite --host 0.0.0.0 --port 5173",
-    "start": "npm run dev",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 0.0.0.0 --port 4173",
-    "lint": "eslint .",
-    "ev": "npm run dev",
-    "serve": "npm run dev",
-    "check": "npm run build",
-    "fix:app": "node scripts/fix-app-imports.mjs"
+    "lint": "eslint ."
   },
   "dependencies": {
-    "framer-motion": "^11.18.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "reactflow": "^11.11.4",
@@ -30,8 +24,5 @@
     "tailwindcss": "^3.4.7",
     "typescript": "^5.5.4",
     "vite": "^5.3.4"
-  },
-  "engines": {
-    "node": ">=20"
   }
 }
